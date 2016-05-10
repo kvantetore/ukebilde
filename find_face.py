@@ -6,7 +6,7 @@ import json
 
 
 def draw_point(image, pos, color=(255, 0, 0)):
-    cv2.rectangle(image, tuple(pos+2), tuple(pos-2), (255, 0, 0), 5)
+    cv2.rectangle(image, tuple(pos+2), tuple(pos-2), color, 5)
 
 
 def find_face_position_manual(filename):
@@ -55,6 +55,9 @@ def save_face_position(filename, pos):
 
 def find_stored_face_position(filename):
     source = get_face_position_filename(filename)
-    with file(source, "r") as f:
-        pos = numpy.array(json.load(f), dtype=numpy.float32)
+    try:
+        with file(source, "r") as f:
+            pos = numpy.array(json.load(f), dtype=numpy.float32)
+    except:
+        pos = None
     return pos

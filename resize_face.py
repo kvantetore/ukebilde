@@ -5,11 +5,13 @@ import os
 import math
 
 
-def resize_face(filename, source_pos, target_pos):
+def get_target_path(filename):
     path, name = os.path.split(filename)
-    root, parent = os.path.split(path)
-    target_folder = os.path.join(root, parent + " (scaled)")
-    target_path = os.path.join(target_folder, name)
+    target_folder = "./scaled"
+    return os.path.join(target_folder, name)
+
+
+def resize_face(filename, target_path, source_pos, target_pos):
     position_filename = os.path.splitext(filename)[0] + ".txt"
 
     #determine if file or target file has changed
@@ -66,6 +68,7 @@ def resize_face(filename, source_pos, target_pos):
     dst = vignetting(dst, center, 500, 400)
 
     #save transformed image
+    target_folder = os.path.split(target_path)[0]
     if not os.path.exists(target_folder):
         os.mkdir(target_folder)
     cv2.imwrite(target_path, dst)

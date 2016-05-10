@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import numpy
 import os
-import json
 import argparse
 
 from find_face import find_face_position_manual, save_face_position, find_stored_face_position
-from resize_face import resize_face
+from resize_face import resize_face, get_target_path
+from create_video import render_frames
 
 TARGET_POS = numpy.array([
     #left eye
@@ -28,11 +28,24 @@ TARGET_POS = numpy.array([
 
 FIND_FACE = "find_face"
 RESIZE_FACE = "resize_face"
-available_actions = [FIND_FACE, RESIZE_FACE]
+RENDER_FRAMES = "render_frames"
+CREATE_VIDEO = "create_video"
+available_actions = [FIND_FACE, RESIZE_FACE, RENDER_FRAMES, CREATE_VIDEO]
 
 
 def find_files():
     return sorted()
+
+import exifread
+import datetime
+
+def get_capture_date(filename):
+    with open(filename, "r") as f:
+        tags = exifread.process_file(f, details=False)
+
+    exif_date = tags["EXIF DateTimeOriginal"]
+    return datetime.datetime.strptime(exif_date.values, "%Y:%m:%d %H:%M:%S")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -69,5 +82,12 @@ if __name__ == "__main__":
             if pos is None:
                 raise Exception("Missing face position file for " + filename)
 
-            resize_face(filename, pos, TARGET_POS)
+            target_path = get_target_path(filename)
+            resize_face(filename, target_path, pos, TARGET_POS)
 
+    if RENDER_FRAMES in args.action:
+        target_paths = [get_target_path(f) for f in files]
+        capture_dates = [get_capture_date(f) for f in files]
+        render_frames(target_paths, capture_dates)
+
+    #if CREATE_VIDEO in args.action:
