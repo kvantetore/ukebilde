@@ -33,9 +33,8 @@ def resize_face(filename, target_path, source_pos, target_pos):
     orig = cv2.imread(filename)
     dst = numpy.array(orig)
 
-    source_leye = numpy.array(source_pos[0, :])
-    source_reye = numpy.array(source_pos[1, :])
-    source_nose = numpy.array(source_pos[2, :])
+    source_leye = source_pos["leye"]
+    source_reye = source_pos["reye"]
 
     target_leye = numpy.array(target_pos[0, :])
     target_reye = numpy.array(target_pos[1, :])
@@ -53,8 +52,7 @@ def resize_face(filename, target_path, source_pos, target_pos):
     transform[:, 2] -= source_leye - target_leye
 
     #transform image
-    dst = cv2.warpAffine(orig, transform, (orig.shape[1], orig.shape[0]), dst, cv2.INTER_CUBIC, cv2.BORDER_CONSTANT,
-                         (200, 200, 200))
+    dst = cv2.warpAffine(orig, transform, (orig.shape[1], orig.shape[0]), dst, cv2.INTER_CUBIC, cv2.BORDER_CONSTANT, (200, 200, 200))
 
     #crop
     height = 1600
@@ -65,7 +63,7 @@ def resize_face(filename, target_path, source_pos, target_pos):
 
     #add vignetting
     center = dst.shape[1] / 2, dst.shape[0] / 2
-    dst = vignetting(dst, center, 500, 400)
+    #dst = vignetting(dst, center, 500, 400)
 
     #save transformed image
     target_folder = os.path.split(target_path)[0]

@@ -1,9 +1,10 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy
 import os
 import argparse
 
-from find_face import find_face_position_manual, save_face_position, find_stored_face_position
+from find_face import find_face_position_manual, find_face_position_automatic, save_face_position, find_stored_face_position
 from resize_face import resize_face, get_target_path
 from create_video import render_frames
 
@@ -72,7 +73,7 @@ if __name__ == "__main__":
         for filename in files:
             pos = find_stored_face_position(filename)
             if pos is None or args.force:
-                pos = find_face_position_manual(filename)
+                pos = find_face_position_automatic(filename)
                 save_face_position(filename, pos)
 
     if RESIZE_FACE in args.action:
@@ -88,6 +89,6 @@ if __name__ == "__main__":
     if RENDER_FRAMES in args.action:
         target_paths = [get_target_path(f) for f in files]
         capture_dates = [get_capture_date(f) for f in files]
-        render_frames(target_paths, capture_dates)
+        render_frames(target_paths, capture_dates, delay=.3, fade=.3)
 
     #if CREATE_VIDEO in args.action:
