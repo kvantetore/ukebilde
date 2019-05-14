@@ -109,10 +109,10 @@ def find_face_position_automatic(filename, scale=3):
     pos = find_face_position_in_image(scaled)
 
     return {
-        "leye": pos["eye"] * scale,
+        "leye": pos["leye"] * scale,
         "reye": pos["reye"] * scale,
         "nose": pos["nose"] * scale,
-        "landmarks": pos["points"] * scale,
+        "landmarks": pos["landmarks"] * scale,
     }
 
 

@@ -3,6 +3,7 @@
 import numpy
 import os
 import argparse
+import json
 
 from find_face import find_face_position_manual, find_face_position_automatic, save_face_position, find_stored_face_position
 from resize_face import resize_face, get_target_path
@@ -52,10 +53,15 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--action", action="append", choices=available_actions, default=[])
     parser.add_argument("files", nargs="*", default=[])
-    parser.add_argument("--folder", default=".")
+    parser.add_argument("--folder", default="./in")
     parser.add_argument("--force", "-f", action="store_true")
+    parser.add_argument("--settings", "-s", default="settings.json")
 
     args = parser.parse_args()
+
+    #parse json
+    with open(args.settings, "r") as f:
+        settings = json.load(f)
 
     #get list of files
     files = []
@@ -89,6 +95,6 @@ if __name__ == "__main__":
     if RENDER_FRAMES in args.action:
         target_paths = [get_target_path(f) for f in files]
         capture_dates = [get_capture_date(f) for f in files]
-        render_frames(target_paths, capture_dates, delay=.3, fade=.3)
+        render_frames(target_paths, capture_dates, settings)
 
     #if CREATE_VIDEO in args.action:
