@@ -36,9 +36,9 @@ def resize_face(filename, target_path, source_pos, target_pos):
     source_leye = source_pos["leye"]
     source_reye = source_pos["reye"]
 
-    target_leye = numpy.array(target_pos[0, :])
-    target_reye = numpy.array(target_pos[1, :])
-    target_nose = numpy.array(target_pos[2, :])
+    target_leye = numpy.array(target_pos[0, :], dtype=int)
+    target_reye = numpy.array(target_pos[1, :], dtype=int)
+    target_nose = numpy.array(target_pos[2, :], dtype=int)
 
     #vector from left to right eye
     source_ltor_eye = source_reye - source_leye
@@ -56,13 +56,13 @@ def resize_face(filename, target_path, source_pos, target_pos):
 
     #crop
     height = 1600
-    width = height * 16 / 9
-    p1x, p1y = target_nose[1] - height / 2 - 100, target_nose[0] - width / 2
-    p2x, p2y = target_nose[1] + height / 2 - 100, target_nose[0] + width / 2
+    width = height * 16 // 9
+    p1x, p1y = target_nose[1] - height // 2 - 100, target_nose[0] - width // 2
+    p2x, p2y = target_nose[1] + height // 2 - 100, target_nose[0] + width // 2
     dst = dst[p1x:p2x, p1y:p2y]
 
     #add vignetting
-    center = dst.shape[1] / 2, dst.shape[0] / 2
+    center = dst.shape[1] // 2, dst.shape[0] // 2
     #dst = vignetting(dst, center, 500, 400)
 
     #save transformed image
@@ -78,7 +78,7 @@ def vignetting(image, center, radius, feather):
     x, y, c = numpy.ix_(range(image.shape[0]), range(image.shape[1]), range(image.shape[2]))
 
     dist = numpy.sqrt((x - center[1]) ** 2 + (y - center[0]) ** 2)
-    amount = numpy.minimum(1, numpy.maximum(0, (dist - radius) / feather))
+    amount = numpy.minimum(1, numpy.maximum(0, (dist - radius) // feather))
     image = numpy.array(target_color * amount + image * (1 - amount), dtype=numpy.uint8)
 
     return image

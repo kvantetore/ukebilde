@@ -42,7 +42,7 @@ import exifread
 import datetime
 
 def get_capture_date(filename):
-    with open(filename, "r") as f:
+    with open(filename, "rb") as f:
         tags = exifread.process_file(f, details=False)
 
     exif_date = tags["EXIF DateTimeOriginal"]
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     if RESIZE_FACE in args.action:
         for filename in files:
-            print "Resizing %s" % filename
+            print("Resizing %s" % filename)
             pos = find_stored_face_position(filename)
             if pos is None:
                 raise Exception("Missing face position file for " + filename)

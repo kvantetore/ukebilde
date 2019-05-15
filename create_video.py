@@ -5,7 +5,7 @@ import numpy
 import datetime
 import dateutil.parser
 from collections import namedtuple
-from functools32 import lru_cache, wraps
+from functools import lru_cache, wraps
 from skimage import transform
 import math
 from itertools import groupby
@@ -103,7 +103,7 @@ class Timeline():
             if file_index > 0:
                 for i in xrange(blend_frames):
                     weight = i / float(blend_frames)
-                    print weight
+                    print(weight)
                     frame = Frame(len(self.frames), [
                         FramePart(filenames[file_index-1], 1 - weight),
                         FramePart(filenames[file_index], weight),
@@ -182,7 +182,7 @@ class Timeline():
             cv2.putText(blend, "%imnd" % months, (int(blend.shape[1]/20), int(blend.shape[1]/15)), cv2.FONT_HERSHEY_SIMPLEX, 2, (25, 25, 25), 5)
 
         out_path = os.path.join(out_folder, "frame-{:0>5d}.jpg".format(frame.frame_index))
-        print "writing", out_path
+        print("writing", out_path)
 
         cv2.imwrite(out_path, blend)
 
@@ -192,7 +192,7 @@ class Timeline():
             try:
                 pool.map(render_frame, [(self, f) for f in self.frames])
             except KeyboardInterrupt:
-                print "Caught KeyboardInterrupt, terminating workers"
+                print("Caught KeyboardInterrupt, terminating workers")
                 pool.terminate()
                 pool.join()
         else:
@@ -203,10 +203,11 @@ class Timeline():
 def init_worker():
     signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-def render_frame((timeline, frame)):
+def render_frame(input):
     """
     hack around multiprocessing.Pools limitation on instancemethods
     """
+    timeline, frame = input
     return timeline.render_frame(frame)
 
 
@@ -227,7 +228,7 @@ def render_frames(filenames, capture_dates, settings):
     timeline.create_frames_sliding_blend(filenames, capture_dates, window_size=window_size, seconds_per_frame=seconds_per_frame)
 
     for f in timeline.frames:
-        print "%s %f" % (f.frame_parts[0].filename, f.frame_parts[0].weight)
+        print("%s %f" % (f.frame_parts[0].filename, f.frame_parts[0].weight))
 
     timeline.render(processes=1)
 

@@ -14,7 +14,7 @@ def find_face_position_manual(filename):
     #load image
     scale = 3
     orig = cv2.imread(filename)
-    orig = cv2.resize(orig, (orig.shape[1]/scale, orig.shape[0]/scale))
+    orig = cv2.resize(orig, (orig.shape[1]//scale, orig.shape[0]//scale))
 
     #create window and mouse callback
     cv2.namedWindow("face")
@@ -101,10 +101,10 @@ def find_face_position_in_image(scaled):
 
 
 def find_face_position_automatic(filename, scale=3):
-    print "Finding face in ", filename
+    print("Finding face in ", filename)
     #load image
     orig = cv2.imread(filename)
-    scaled = cv2.resize(orig, (orig.shape[1]/scale, orig.shape[0]/scale))
+    scaled = cv2.resize(orig, (orig.shape[1]//scale, orig.shape[0]//scale))
 
     pos = find_face_position_in_image(scaled)
 
@@ -122,7 +122,7 @@ def get_face_position_filename(filename):
 
 def save_face_position(filename, pos):
     target = get_face_position_filename(filename)
-    with file(target, "w") as f:
+    with open(target, "w") as f:
         json.dump({
             "leye": pos["leye"].tolist(),
             "reye": pos["reye"].tolist(),
@@ -134,7 +134,7 @@ def save_face_position(filename, pos):
 def find_stored_face_position(filename):
     source = get_face_position_filename(filename)
     try:
-        with file(source, "r") as f:
+        with open(source, "r") as f:
             data = json.load(f)
             pos = {
                 "leye": numpy.array(data["leye"], dtype=float),
