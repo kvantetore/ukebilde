@@ -9,6 +9,7 @@ from functools import lru_cache, wraps
 from skimage import transform
 import math
 from itertools import groupby
+import av
 
 import multiprocessing
 import signal
@@ -22,9 +23,9 @@ out_folder = "./frames"
 FramePart = namedtuple("FramePart", "filename weight")
 Frame = namedtuple("Frame", "frame_index frame_parts date")
 
-@lru_cache(maxsize=None)
+@lru_cache(maxsize=1000)
 def read_image(filename, video_size):
-    #print "reading", filename
+    print("reading", filename)
     img = cv2.imread(filename)
 
     scaled = cv2.resize(img, video_size)
@@ -163,7 +164,7 @@ class Timeline():
     def read_image(self, filename):
         return read_image(filename, self.video_size)
 
-    def render_frame(self, frame):
+    def render_frame(self, frame, container, stream):
         parts = frame.frame_parts
 
         #blend between frame parts
@@ -179,25 +180,32 @@ class Timeline():
         months = int(age.days / 30.4)
 
         if months > 0:
-            cv2.putText(blend, "%imnd" % months, (int(blend.shape[1]/20), int(blend.shape[1]/15)), cv2.FONT_HERSHEY_SIMPLEX, 2, (25, 25, 25), 5)
+            print("%imnd" % (months, ))
+            blend = cv2.putText(blend, "%imnd" % months, (int(blend.shape[1]/20), int(blend.shape[1]/15)), cv2.FONT_HERSHEY_SIMPLEX, 2, (25, 25, 25), 5)
 
         out_path = os.path.join(out_folder, "frame-{:0>5d}.jpg".format(frame.frame_index))
-        print("writing", out_path)
+        print("writing frame", frame.frame_index)
+        #cv2.imwrite(out_path, blend)
 
-        cv2.imwrite(out_path, blend)
+        video_frame = av.VideoFrame.from_ndarray(blend, format='bgra')
+        for packet in stream.encode(video_frame):
+           container.mux(packet)
 
-    def render(self, processes=8):
-        if processes > 1:
-            pool = multiprocessing.Pool(processes, init_worker)
-            try:
-                pool.map(render_frame, [(self, f) for f in self.frames])
-            except KeyboardInterrupt:
-                print("Caught KeyboardInterrupt, terminating workers")
-                pool.terminate()
-                pool.join()
-        else:
-            for frame in self.frames:
-                self.render_frame(frame)
+    def render(self, output):
+        container = av.open(output, mode='w')
+        stream = container.add_stream('h264', rate=self.fps)
+        stream.width = self.video_size[0]
+        stream.height = self.video_size[1]
+        stream.pix_fmt = 'yuv420p'
+
+        for frame in self.frames:
+            self.render_frame(frame, container, stream)
+
+        # Flush stream
+        for packet in stream.encode():
+            container.mux(packet)
+
+        container.close()
 
 
 def init_worker():
@@ -219,6 +227,7 @@ def render_frames(filenames, capture_dates, settings):
     fps = int(settings.get("fps", 24))
     video_height = int(settings.get("video_height", 720))
     video_width = int(settings.get("video_width", video_height * 16 / 9))
+    output = settings.get("output", "ukebile.avi")
 
     window_size = int(settings.get("window_size", 5))
     seconds_per_frame = float(settings.get("seconds_per_frame", 0.3))
@@ -230,7 +239,7 @@ def render_frames(filenames, capture_dates, settings):
     for f in timeline.frames:
         print("%s %f" % (f.frame_parts[0].filename, f.frame_parts[0].weight))
 
-    timeline.render(processes=1)
+    timeline.render(output)
 
 def create_video():
     pass
