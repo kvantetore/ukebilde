@@ -1,6 +1,6 @@
 cycler==0.10.0
 Cython==0.28.3
-dask==0.11.0
+dask==2021.10.0
 decorator==4.0.10
 dlib==19.1.99
 ExifRead==2.1.1
