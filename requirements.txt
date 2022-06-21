@@ -11,7 +11,7 @@ gnureadline==6.3.3
 ipython==3.1.0
 matplotlib==1.5.2
 networkx==1.11
-numpy==1.14.5
+numpy==1.22.0
 Pillow==3.3.1
 PyOpenGL==3.1.0
 pyparsing==2.1.8
